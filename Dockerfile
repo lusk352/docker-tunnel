@@ -9,18 +9,19 @@
 #
 ###
 
-FROM alpine:3.5
-MAINTAINER Kingsquare <docker@kingsquare.nl>
-
-ENV SSH_AUTH_SOCK /ssh-agent
+FROM alpine
+LABEL maintainer="pnghai@gmail.com"
 
 ####
 # Install the autossh
 RUN apk add --update autossh && rm -rf /var/cache/apk/*
 
-VOLUME ["/ssh-agent"]
-# for ambassador mode
-EXPOSE 2222
+ENV \
+    TERM=xterm \
+    AUTOSSH_LOGFILE=/dev/stdout \
+    AUTOSSH_GATETIME=30         \
+    AUTOSSH_POLL=10             \
+    AUTOSSH_FIRST_POLL=30       \
+    AUTOSSH_LOGLEVEL=1
 
-
-ENTRYPOINT ["/usr/bin/autossh", "-M", "0", "-T", "-N", "-oStrictHostKeyChecking=no", "-oServerAliveInterval=180", "-oUserKnownHostsFile=/dev/null", "-L"]
+ENTRYPOINT ["/usr/bin/autossh", "-M", "0", "-T", "-N", "-oStrictHostKeyChecking=no", "-oServerAliveInterval=180", "-oUserKnownHostsFile=/dev/null", "-i", "/id_rsa", "-L"]
